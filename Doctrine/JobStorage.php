@@ -210,7 +210,9 @@ class JobStorage
     private function getEntityManager()
     {
         if (!$this->em) {
-            $this->em = $this->doctrine->getManagerForClass($this->entityClass);
+            $this->em = empty($this->entityManagerName)
+                ? $this->doctrine->getManagerForClass($this->entityClass)
+                : $this->doctrine->getManager($this->entityManagerName);
         }
         if (!$this->em->isOpen()) {
             $this->em = $this->doctrine->resetManager();

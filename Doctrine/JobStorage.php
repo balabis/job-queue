@@ -39,15 +39,21 @@ class JobStorage
     private $uniqueTableName;
 
     /**
+     * @var string
+     */
+    private $entityManagerName;
+
+    /**
      * @param ManagerRegistry $doctrine
      * @param string          $entityClass
      * @param string          $uniqueTableName
      */
-    public function __construct(ManagerRegistry $doctrine, $entityClass, $uniqueTableName)
+    public function __construct(ManagerRegistry $doctrine, $entityClass, $uniqueTableName, $entityManagerName)
     {
         $this->doctrine = $doctrine;
         $this->entityClass = $entityClass;
         $this->uniqueTableName = $uniqueTableName;
+        $this->entityManagerName = $entityManagerName;
     }
 
     /**

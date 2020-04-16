@@ -44,9 +44,9 @@ class JobStorage
     private $entityManagerName;
 
     /**
-     * @param ManagerRegistry $doctrine
-     * @param string          $entityClass
-     * @param string          $uniqueTableName
+     * @param string $entityClass
+     * @param string $uniqueTableName
+     * @param $entityManagerName
      */
     public function __construct(ManagerRegistry $doctrine, $entityClass, $uniqueTableName, $entityManagerName)
     {
@@ -96,7 +96,6 @@ class JobStorage
 
     /**
      * @param string $name
-     * @param Job    $rootJob
      *
      * @return Job
      */
@@ -125,20 +124,13 @@ class JobStorage
     }
 
     /**
-     * @param Job           $job
-     * @param \Closure|null $lockCallback
-     *
      * @throws DuplicateJobException
      */
     public function saveJob(Job $job, \Closure $lockCallback = null)
     {
         $class = $this->getEntityRepository()->getClassName();
         if (!$job instanceof $class) {
-            throw new \LogicException(sprintf(
-                'Got unexpected job instance: expected: "%s", actual" "%s"',
-                $class,
-                get_class($job)
-            ));
+            throw new \LogicException(sprintf('Got unexpected job instance: expected: "%s", actual" "%s"', $class, get_class($job)));
         }
 
         if ($lockCallback) {
@@ -181,11 +173,7 @@ class JobStorage
                             ]);
                         }
                     } catch (UniqueConstraintViolationException $e) {
-                        throw new DuplicateJobException(sprintf(
-                            'Duplicate job. ownerId:"%s", name:"%s"',
-                            $job->getOwnerId(),
-                            $job->getName()
-                        ));
+                        throw new DuplicateJobException(sprintf('Duplicate job. ownerId:"%s", name:"%s"', $job->getOwnerId(), $job->getName()));
                     }
 
                     $this->getEntityManager()->persist($job);
@@ -216,9 +204,7 @@ class JobStorage
     private function getEntityManager()
     {
         if (!$this->em) {
-            $this->em = empty($this->entityManagerName)
-                ? $this->doctrine->getManagerForClass($this->entityClass)
-                : $this->doctrine->getManager($this->entityManagerName);
+            $this->em = $this->doctrine->getManagerForClass($this->entityClass);
         }
         if (!$this->em->isOpen()) {
             $this->em = $this->doctrine->resetManager();
